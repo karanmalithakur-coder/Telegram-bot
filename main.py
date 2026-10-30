@@ -11,7 +11,7 @@ import google.generativeai as genai
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-# 1. Flask Web Server (Main thread par chalega taaki Render khush rahe)
+# 1. Flask Web Server
 app_web = Flask('')
 
 @app_web.route('/')
@@ -55,17 +55,14 @@ def run_bot():
         app.add_handler(CommandHandler("start", start_command))
         app.add_handler(MessageHandler(filters.TEXT & (~filters.COMMAND), handle_message))
         
-        # stop_signals=None lagane se background thread ka error jad se khatam ho jayega!
         app.run_polling(drop_pending_updates=True, stop_signals=None)
     except Exception as e:
         logger.error(f"Telegram bot error: {e}")
 
-if name == '__main__':
-    # Bot ko background thread mein daalte hain
-    bot_thread = Thread(target=run_bot, daemon=True)
-    bot_thread.start()
+# Bina kisi condition ke seedha execute hoga (koi underscore error nahi)
+bot_thread = Thread(target=run_bot, daemon=True)
+bot_thread.start()
 
-    # Flask ko main thread par chalate hain
-    port = int(os.environ.get("PORT", 8080))
-    logger.info(f"Starting Flask web server on port {port}...")
-    app_web.run(host='0.0.0.0', port=port, use_reloader=False)
+port = int(os.environ.get("PORT", 8080))
+logger.info(f"Starting Flask web server on port {port}...")
+app_web.run(host='0.0.0.0', port=port, use_reloader=False)
