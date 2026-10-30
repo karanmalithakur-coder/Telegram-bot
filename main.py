@@ -11,7 +11,7 @@ import google.generativeai as genai
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-# 1. Flask Web Server (Main thread par chalega taaki Render ka health-check paas ho jaye)
+# 1. Flask Web Server
 app_web = Flask('')
 
 @app_web.route('/')
@@ -19,7 +19,6 @@ def home():
     return "Telegram AI Bot is live and running!"
 
 def run_bot():
-    # Flask ko start hone ke liye 2 sekund dete hain
     time.sleep(2)
     
     token = os.getenv("TELEGRAM_BOT_TOKEN")
@@ -56,11 +55,9 @@ def run_bot():
         logger.error(f"Telegram bot error: {e}")
 
 if name == '__main__':
-    # Telegram bot ko background thread mein chalu karte hain
     bot_thread = Thread(target=run_bot, daemon=True)
     bot_thread.start()
 
-    # Flask web server ko main thread par chalate hain (Render ke liye zaroori hai)
     port = int(os.environ.get("PORT", 8080))
     logger.info(f"Starting Flask web server on port {port}...")
     app_web.run(host='0.0.0.0', port=port, use_reloader=False)
