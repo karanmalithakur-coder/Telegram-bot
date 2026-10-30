@@ -1,17 +1,16 @@
 import os
 import logging
-import time
 from threading import Thread
 from flask import Flask
 from telegram import Update
-from telegram.ext import ApplicationBuilder, ContextTypes, MessageHandler, filters
+from telegram.ext import ApplicationBuilder, ContextTypes, CommandHandler, MessageHandler, filters
 import google.generativeai as genai
 
 # Logging Setup
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-# 1. Flask Web Server
+# 1. Flask Web Server (Render health check ke liye)
 app_web = Flask('')
 
 @app_web.route('/')
@@ -19,8 +18,6 @@ def home():
     return "Telegram AI Bot is live and running!"
 
 def run_bot():
-    time.sleep(2)
-    
     token = os.getenv("TELEGRAM_BOT_TOKEN")
     ai_key = os.getenv("AI_API_KEY")
 
@@ -35,6 +32,11 @@ def run_bot():
         logger.error("AI_API_KEY is missing!")
         return
 
+    # Start command handler
+    async def start_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
+        await update.message.reply_text("Namaste! Main aapka Telegram AI Ads Manager bot hu. Aap mujhse koi bhi sawal puch sakte hain!")
+
+    # Message handler
     async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
         user_text = update.message.text
         chat_id = update.message.chat_id
@@ -49,15 +51,21 @@ def run_bot():
     try:
         logger.info("Starting Telegram Bot application...")
         app = ApplicationBuilder().token(token).build()
+        
+        # Handlers add kar rahe hain
+        app.add_handler(CommandHandler("start", start_command))
         app.add_handler(MessageHandler(filters.TEXT & (~filters.COMMAND), handle_message))
+        
+        # Bot polling start
         app.run_polling(drop_pending_updates=True)
     except Exception as e:
         logger.error(f"Telegram bot error: {e}")
 
-# Bina kisi 'if name' check ke seedha run karte hain taaki error ka scope hi na rahe!
+# Bot thread ko start karte hain
 bot_thread = Thread(target=run_bot, daemon=True)
 bot_thread.start()
 
+# Flask web server ko main thread par chalate hain
 port = int(os.environ.get("PORT", 8080))
 logger.info(f"Starting Flask web server on port {port}...")
 app_web.run(host='0.0.0.0', port=port, use_reloader=False)
