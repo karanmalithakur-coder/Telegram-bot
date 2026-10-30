@@ -54,10 +54,10 @@ def run_bot():
     except Exception as e:
         logger.error(f"Telegram bot error: {e}")
 
-if name == '__main__':
-    bot_thread = Thread(target=run_bot, daemon=True)
-    bot_thread.start()
+# Bina kisi 'if name' check ke seedha run karte hain taaki error ka scope hi na rahe!
+bot_thread = Thread(target=run_bot, daemon=True)
+bot_thread.start()
 
-    port = int(os.environ.get("PORT", 8080))
-    logger.info(f"Starting Flask web server on port {port}...")
-    app_web.run(host='0.0.0.0', port=port, use_reloader=False)
+port = int(os.environ.get("PORT", 8080))
+logger.info(f"Starting Flask web server on port {port}...")
+app_web.run(host='0.0.0.0', port=port, use_reloader=False)
