@@ -6,22 +6,24 @@ from telegram import Update
 from telegram.ext import ApplicationBuilder, ContextTypes, MessageHandler, filters
 import google.generativeai as genai
 
-# 1. Chhota sa Web Server (Render ke liye zaroori hai taaki service fail na ho)
+# 1. Web Server (Render ke health check ko satisfy karne ke liye)
 app_web = Flask('')
 
 @app_web.route('/')
 def home():
-    return "Telegram AI Bot is running smoothly!"
+    return "Telegram AI Bot is live and running!"
 
 def run_web():
     port = int(os.environ.get("PORT", 8080))
-    app_web.run(host='0.0.0.0', port=port)
+    app_web.run(host='0.0.0.0', port=port, use_reloader=False)
 
-# 2. Logging aur API Configuration
+# 2. Logging Setup
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO)
 
+# 3. Environment Variables se Keys uthana
 TELEGRAM_BOT_TOKEN = os.getenv("TELEGRAM_BOT_TOKEN")
 AI_API_KEY = os.getenv("AI_API_KEY")
+TELEGRAM_ADS_API_KEY = os.getenv("TELEGRAM_ADS_API_KEY")
 
 if AI_API_KEY:
     genai.configure(api_key=AI_API_KEY)
@@ -32,7 +34,7 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
     chat_id = update.message.chat_id
 
     try:
-        prompt = f"Aap ek expert Telegram Ads Manager hain. User ka command ye hai: '{user_text}'. Iska professional jawab dein."
+        prompt = f"Aap ek expert Telegram Ads Manager aur Data Analyst hain. User ka command ye hai: '{user_text}'. Iska professional jawab dein."
         response = model.generate_content(prompt)
         reply_text = response.text
     except Exception as e:
@@ -41,7 +43,7 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await context.bot.send_message(chat_id=chat_id, text=reply_text)
 
 if name == '__main__':
-    # Web server ko alag thread mein chalate hain
+    # Web Server ko background thread mein start karte hain
     t = Thread(target=run_web)
     t.start()
 
@@ -51,5 +53,5 @@ if name == '__main__':
     else:
         app = ApplicationBuilder().token(TELEGRAM_BOT_TOKEN).build()
         app.add_handler(MessageHandler(filters.TEXT & (~filters.COMMAND), handle_message))
-        print("Bot is running...")
+        print("Bot is running smoothly...")
         app.run_polling()
