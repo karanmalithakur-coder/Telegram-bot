@@ -27,17 +27,8 @@ def run_bot():
 
     if ai_key:
         genai.configure(api_key=ai_key)
-        
-        # Yahan hum automatic model selector laga rahe hain taaki jo free model available ho, wo khud utha le!
-        try:
-            available_models = [m.name for m in genai.list_models() if 'generateContent' in m.supported_generation_methods]
-            # Agar flash ya pro jo bhi mil jaye list me se
-            selected_model_name = next((m for m in available_models if 'flash' in m or 'pro' in m), available_models[0])
-            model = genai.GenerativeModel(selected_model_name)
-            logger.info(f"Successfully loaded AI model: {selected_model_name}")
-        except Exception as e:
-            logger.warning(f"Auto-select failed, defaulting to gemini-1.5-flash: {e}")
-            model = genai.GenerativeModel('gemini-1.5-flash')
+        # API ke error ke mutabik latest recommended model set kar diya hai
+        model = genai.GenerativeModel('gemini-3.8-flash')
     else:
         logger.error("AI_API_KEY is missing!")
         return
