@@ -1,50 +1,27 @@
-import os
-import logging
-from threading import Thread
-from flask import Flask
-from telegram import Update
-from telegram.ext import ApplicationBuilder, ContextTypes, CommandHandler, MessageHandler, filters
-import google.generativeai as genai
-
-# Logging Setup
-logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO)
-logger = logging.getLogger(__name__)
-
-# 1. Flask Web Server
-app_web = Flask('')
-
-@app_web.route('/')
-def home():
-    return "Telegram AI Bot is live and running!"
-
-def run_bot():
-    token = os.getenv("TELEGRAM_BOT_TOKEN")
-    ai_key = os.getenv("AI_API_KEY")
-
-    if not token:
-        logger.error("TELEGRAM_BOT_TOKEN is missing!")
-        return
-
-    if ai_key:
-        genai.configure(api_key=ai_key)
-        # API ke error ke mutabik latest recommended model set kar diya hai
-        model = genai.GenerativeModel('gemini-3.8-flash')
-    else:
-        logger.error("AI_API_KEY is missing!")
-        return
-
-    async def start_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
-        await update.message.reply_text("Namaste! Main aapka Telegram AI Ads Manager bot hu. Aap mujhse cricket prediction ads, targeting aur copy ke baare mein puch sakte hain!")
-
-    async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
-        user_text = update.message.text
-        chat_id = update.message.chat_id
-        try:
-            prompt = f"Aap ek expert Telegram Ads Manager aur Data Analyst hain jo cricket prediction aur tipping channels ke liye high-converting ads aur targeting strategy banate hain. User ka sawal/command ye hai: '{user_text}'. Iska ekdum professional aur policy-safe jawab dein."
-            response = model.generate_content(prompt)
-            reply_text = response.text
+Punter Psychology & Low CPA: Focus heavily on loss recovery, 90% accuracy trust, toss pass, and session profit hooks to maximize joins at the lowest possible cost.
+            
+            User's Instruction / Data: '{user_text}'
+            
+            Deliver a flawless, highly structured, professional, and execution-ready campaign blueprint in Hinglish/English mix. Be ruthless about ROI, low CPA, and maximum conversions.
+            """
+            
+            safety_settings = {
+                HarmCategory.HARM_CATEGORY_HARASSMENT: HarmBlockThreshold.BLOCK_NONE,
+                HarmCategory.HARM_CATEGORY_HATE_SPEECH: HarmBlockThreshold.BLOCK_NONE,
+                HarmCategory.HARM_CATEGORY_SEXUALLY_EXPLICIT: HarmBlockThreshold.BLOCK_NONE,
+                HarmCategory.HARM_CATEGORY_DANGEROUS_CONTENT: HarmBlockThreshold.BLOCK_NONE,
+            }
+            
+            response = model.generate_content(master_prompt, safety_settings=safety_settings)
+            
+            if response.text:
+                reply_text = response.text
+            else:
+                reply_text = "Maaf kijiye, is instruction par response generate nahi ho paya. Dobara try kijiye!"
         except Exception as e:
-            reply_text = f"Maaf kijiye, error aaya: {str(e)}"
+            logger.error(f"AI Error: {e}")
+            reply_text = f"Maaf kijiye, technical error aaya: {str(e)}"
+            
         await context.bot.send_message(chat_id=chat_id, text=reply_text)
 
     try:
