@@ -89,9 +89,7 @@ def run_telegram_polling():
                             ai_action_report = autonomous_media_buyer_brain(text)
                             send_telegram_message(chat_id, ai_action_report)
         except Exception as e:
-
 print(f"Polling error: {e}")
-            time.sleep(5)
         time.sleep(1)
 
 if name == "__main__":
