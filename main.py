@@ -97,6 +97,6 @@ def run_telegram_polling():
             print(f"Polling error: {e}")
             time.sleep(1)
 
-if name == "__main__":
+if __name__ == "__main__":
     print(f"System Booting Up... Autonomous Media Buyer Active on {MODEL_NAME}!")
     run_telegram_polling()
