@@ -77,24 +77,24 @@ def run_telegram_polling():
                 for result in response.get("result", []):
                     offset = result["update_id"] + 1
                     message = result.get("message") or result.get("edited_message")
-if not message:
-    continue
-
-chat_id = message.get("chat", {}).get("id")
-text = message.get("text")
+                    
+                    if not message:
+                        continue
+                        
+                    chat_id = message.get("chat", {}).get("id")
                     text = message.get("text")
                     
                     if chat_id and text:
                         print(f"Command received from {chat_id}: {text}")
                         if text.startswith("/start"):
-                            welcome_msg = "🤖 **Autonomous Telegram Ads Growth Engine Active!**\n\nMujhe channel ka link ya performance data do. Main khud analyze karke bure ads band karunga, CPM adjust karunga, aur naye creatives generate karunga."
+                            welcome_msg = "**Autonomous Telegram Ads Growth Engine Active!**\n\nMujhe channel ka admin banao aur apne products ki details bhejo."
                             send_telegram_message(chat_id, welcome_msg)
                         else:
                             ai_action_report = autonomous_media_buyer_brain(text)
                             send_telegram_message(chat_id, ai_action_report)
         except Exception as e:
-print(f"Polling error: {e}")
-        time.sleep(1)
+            print(f"Polling error: {e}")
+            time.sleep(1)
 
 if name == "__main__":
     print(f"System Booting Up... Autonomous Media Buyer Active on {MODEL_NAME}!")
