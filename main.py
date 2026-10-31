@@ -76,7 +76,7 @@ def run_ai_ads_manager():
     send_telegram_report(ai_decision)
     print("Cycle Complete. Waiting for next schedule.")
 
-if name == "__main__":
+if __name__ == "__main__":
     print(f"System Booting Up... AI Manager Active on {MODEL_NAME}!")
     run_ai_ads_manager()
     schedule.every(6).hours.do(run_ai_ads_manager)
