@@ -76,8 +76,12 @@ def run_telegram_polling():
             if response.get("ok"):
                 for result in response.get("result", []):
                     offset = result["update_id"] + 1
-                    message = result.get("message", {})
-                    chat_id = message.get("chat", {}).get("id")
+                    message = result.get("message") or result.get("edited_message")
+if not message:
+    continue
+
+chat_id = message.get("chat", {}).get("id")
+text = message.get("text")
                     text = message.get("text")
                     
                     if chat_id and text:
