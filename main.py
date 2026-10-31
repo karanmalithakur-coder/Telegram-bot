@@ -1,40 +1,35 @@
-Punter Psychology & Low CPA: Focus heavily on loss recovery, 90% accuracy trust, toss pass, and session profit hooks to maximize joins at the lowest possible cost.
+elif action_data.get("action_type") == "add_campaign":
+                        camp_data = action_data["data"]
+                        if camp_data:
+                            camp_data["executed"] = False
+                            current_memory["campaigns"].append(camp_data)
+                            save_memory(current_memory)
+                            ai_reply += "\n\n✅ *[System Log]: New Campaign successfully scheduled and saved to Python Persistent Memory!*"
+                except Exception as parse_err:
+                    logger.error(f"Memory Parse Error: {parse_err}")
             
-            User's Instruction / Data: '{user_text}'
-            
-            Deliver a flawless, highly structured, professional, and execution-ready campaign blueprint in Hinglish/English mix. Be ruthless about ROI, low CPA, and maximum conversions.
-            """
-            
-            safety_settings = {
-                HarmCategory.HARM_CATEGORY_HARASSMENT: HarmBlockThreshold.BLOCK_NONE,
-                HarmCategory.HARM_CATEGORY_HATE_SPEECH: HarmBlockThreshold.BLOCK_NONE,
-                HarmCategory.HARM_CATEGORY_SEXUALLY_EXPLICIT: HarmBlockThreshold.BLOCK_NONE,
-                HarmCategory.HARM_CATEGORY_DANGEROUS_CONTENT: HarmBlockThreshold.BLOCK_NONE,
-            }
-            
-            response = model.generate_content(master_prompt, safety_settings=safety_settings)
-            
-            if response.text:
-                reply_text = response.text
-            else:
-                reply_text = "Maaf kijiye, is instruction par response generate nahi ho paya. Dobara try kijiye!"
+            reply_text = ai_reply
         except Exception as e:
             logger.error(f"AI Error: {e}")
-            reply_text = f"Maaf kijiye, technical error aaya: {str(e)}"
+            reply_text = f"Technical Error: {str(e)}"
             
-        await context.bot.send_message(chat_id=chat_id, text=reply_text)
+        await context.bot.send_message(chat_id=chat_id, text=reply_text, parse_mode="Markdown")
+
+    # Start Background Scheduler Thread
+    admin_id = os.getenv("ADMIN_CHAT_ID", "0000000")
+    scheduler_thread = Thread(target=background_scheduler_worker, args=(token, admin_id), daemon=True)
+    scheduler_thread.start()
 
     try:
-        logger.info("Starting Telegram Bot application...")
+        logger.info("Starting Telegram Bot Polling with Memory Bridge...")
         app = ApplicationBuilder().token(token).build()
-        
         app.add_handler(CommandHandler("start", start_command))
         app.add_handler(MessageHandler(filters.TEXT & (~filters.COMMAND), handle_message))
-        
         app.run_polling(drop_pending_updates=True, stop_signals=None)
     except Exception as e:
         logger.error(f"Telegram bot error: {e}")
 
+# Run Bot in background thread so Flask runs concurrently on Render
 bot_thread = Thread(target=run_bot, daemon=True)
 bot_thread.start()
 
