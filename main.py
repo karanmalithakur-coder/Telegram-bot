@@ -68,6 +68,7 @@ def send_telegram_message(chat_id, text):
 
 def run_telegram_polling():
     print("Autonomous AI Media Buyer Bot is live and listening...")
+    time.sleep(10)  # Purana instance hatne ke liye 10 second ka gap
     offset = 0
     while True:
         url = f"https://api.telegram.org/bot{TELEGRAM_BOT_TOKEN}/getUpdates?offset={offset}&timeout=30"
@@ -96,6 +97,6 @@ def run_telegram_polling():
             print(f"Polling error: {e}")
             time.sleep(1)
 
-if __name__ == "__main__":
+if name == "__main__":
     print(f"System Booting Up... Autonomous Media Buyer Active on {MODEL_NAME}!")
     run_telegram_polling()
